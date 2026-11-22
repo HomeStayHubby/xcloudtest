@@ -40,10 +40,13 @@ those; it listens on the `PORT` xCloud provides (defaults to 3000).
 ### 3. Deployment script
 
 xCloud runs a deployment script on every push (Push to Deploy). Make sure it
-includes the install and build steps:
+includes the install and build steps, with **the real site directory path**
+(xCloud's default template contains a literal `cd /your/site/path`
+placeholder that fails with "No such file or directory" until you replace it
+— the actual path is shown on the site's dashboard page):
 
 ```bash
-cd /your/site/path
+cd /home/<user>/<actual-site-dir>
 npm install --include=dev
 npm run build
 ```
@@ -155,6 +158,7 @@ automatically, enable the commented "Trigger xCloud deploy" step in
 
 | Symptom | Likely cause / fix |
 |---|---|
+| Deploy script fails at line 1: `cd: /your/site/path: No such file or directory` (exit code 1) | xCloud's default deploy script ships with an unreplaced placeholder — edit the deployment script in the dashboard and put the real site directory path in the `cd` line (shown on the site's dashboard page) |
 | Deployment fails during build | Check the xCloud build log: usually missing dev dependencies — the deployment script must run `npm install --include=dev` before `npm run build` |
 | App boots but site is unresponsive | Port mismatch — confirm the exposed/listener port matches `PORT` (app defaults to 3000 when xCloud does not inject it) |
 | 502 after deploy | Container/app crashed on boot — read logs (`pm2 logs` on native, `docker compose logs app` on Docker); `SESSION_SECRET` must be at least 16 chars |
