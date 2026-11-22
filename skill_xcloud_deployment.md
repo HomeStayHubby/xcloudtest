@@ -40,8 +40,9 @@ xCloud 3.0 supports two relevant deployment modes:
 ### Mode A — Native Node.js site
 
 1. Clones the repo (chosen branch, typically `main`) into the site directory.
-2. Runs the configurable **deployment script** on every push
-   (default: `cd /site/path && npm install && npm run build`).
+2. Runs the configurable **Build & deploy script** after pulling the branch,
+   from the site's code folder (for npm repos: install + build commands,
+   e.g. `$XCLOUD_NPM install --no-audit --no-fund` + `npm run build`).
 3. Starts the app with the configured **start command** (default
    `npm start`) under panel-managed supervision. Injects `PORT`.
 4. Reverse-proxies the domain to the app port over HTTP; provisions SSL
@@ -149,13 +150,13 @@ Consequences for both modes:
 
 | Setting | Value |
 |---|---|
-| Site type | Node.js → Clone a Git Repository |
+| Site type | Deploy via Git (Node.js) |
 | Repository | `<user>/<repo>`, branch `main` |
+| Serving mode | SSR (Node process) — the app keeps a Node process running |
+| Start command / port | `npm start` / Application Port must match the app (default 3000) |
 | Node.js version | 20 or 22 |
-| Build command | `npm run build` |
-| Start command | `npm start` |
-| Deployment script | `cd /site/path && npm install --include=dev && npm run build` |
-| Env vars | `NODE_ENV=production`, `SESSION_SECRET`, `CORS_ORIGIN` |
+| Build & deploy script | Runs from the site's code folder after pull — never include a `cd /your/site/path` placeholder; keep install + build only |
+| Env vars | `NODE_ENV=production`, `SESSION_SECRET`, `CORS_ORIGIN` (site → Environment; untracked `.env` survives deploys) |
 
 ### Mode B (Custom Docker)
 

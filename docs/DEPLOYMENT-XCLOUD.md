@@ -15,91 +15,89 @@ those; it listens on the `PORT` xCloud provides (defaults to 3000).
 
 ### 1. Create the site
 
-1. xCloud dashboard → select your server → **+ Add New Site**.
-2. Choose the **Node.js** tab → **Clone a Git Repository**.
-3. Connect GitHub and select `homestayhubby/xcloudtest`, branch `main`.
-4. **Node.js version:** 20 or 22 (the app supports 18+; 22 LTS recommended).
-5. Domain: add your domain (xCloud provisions SSL automatically).
+1. xCloud dashboard → select your server → **+ Add New Site** →
+   **Deploy via Git**.
+2. Select `homestayhubby/xcloudtest`, branch `main`. xCloud auto-detects the
+   app type — confirm it is **Node.js**.
+3. **Serving mode:** **SSR (Node process)** — ELITEQuest keeps a Node process
+   running (Express + Socket.io).
+4. **Start command:** `npm start` · **Application Port:** `3000` (must match
+   the app; the entry point reads `PORT` when xCloud injects it and falls
+   back to 3000).
+5. **Node.js version:** 20 or 22 (the app supports 18+; 22 LTS recommended).
+6. Domain: use the generated **staging domain (no DNS)** for the first
+   deploy, or configure your live domain.
 
-### 2. App settings
+### 2. Build & deploy script
 
-| Setting | Value |
-|---|---|
-| Build command | `npm run build` |
-| Start command | `npm start` |
-| Node.js version | 20 or 22 |
-
-- `npm start` runs `node index.js` (repo root), which loads
-  `server/dist/index.js`. xCloud injects `PORT` automatically; the entry point
-  falls back to `3000` if unset.
-- The repo is an npm-workspaces monorepo; `npm run build` builds `shared`,
-  `server`, and `client` in dependency order.
-- Compiled `dist/` output is also committed to git, so the app boots even if
-  the panel-side build step is skipped or fails.
-
-### 3. Deployment script
-
-xCloud runs a deployment script on every push (Push to Deploy). Make sure it
-includes the install and build steps, with **the real site directory path**
-(xCloud's default template contains a literal `cd /your/site/path`
-placeholder that fails with "No such file or directory" until you replace it
-— the actual path is shown on the site's dashboard page):
+The script runs after xCloud pulls the branch, **from the site's code
+folder** — it must NOT contain a `cd` line. Older templates and third-party
+guides show `cd /your/site/path`; that placeholder fails with
+"cd: /your/site/path: No such file or directory". For this repo the script
+is simply:
 
 ```bash
-cd /home/<user>/<actual-site-dir>
-npm install --include=dev
+$XCLOUD_NPM install --no-audit --no-fund
 npm run build
 ```
 
-`--include=dev` matters: TypeScript, Vite, and other build tools are
-devDependencies, and some panels install with dev dependencies omitted.
+- `$XCLOUD_NPM` is xCloud's npm variable; `npm install --no-audit --no-fund`
+  works identically.
+- The repo is an npm-workspaces monorepo; `npm run build` builds `shared`,
+  `server`, and `client` in dependency order.
+- Compiled `dist/` output is also committed to git, so the app boots even if
+  the build step is skipped or fails.
 
-### 4. Environment variables
+### 3. Environment variables
 
-Add these in the xCloud site settings (environment panel) or in a `.env` file
-at the application directory root (never committed):
+Configure via the site's **Environment** panel (xCloud keeps an untracked
+`.env` in the site root across deploys) or a `.env` file at the site root
+(never committed):
 
 | Variable | Value |
 |---|---|
 | `NODE_ENV` | `production` |
 | `SESSION_SECRET` | long random string (`openssl rand -base64 48`) |
 | `CORS_ORIGIN` | your public URL, e.g. `https://quest.example.edu` |
-| `PORT` | optional — xCloud injects it; app defaults to `3000` |
+| `PORT` | optional — set it to the Application Port from SSR Configuration if xCloud does not inject it; the app defaults to `3000` |
 
 Optional: `GROQ_API_KEY` / `GROQ_MODEL` bootstrap values for AI question
 generation (admin-managed settings take precedence once stored).
 
 The SQLite database and session store are created automatically in `data/`
-at the application directory root.
+at the site's code folder.
 
-### 5. First admin account
+### 4. First admin account
 
-One-time, from the application directory root:
+One-time, from the site's code folder:
 
 ```bash
 node server/dist/scripts/create-admin.js you@example.edu your_secure_password
 ```
 
-### 6. Push to deploy
+### 5. Push to deploy
 
 Enable xCloud's **Push to Deploy** toggle and copy the webhook URL into
 GitHub → repo → Settings → Webhooks (content type `application/json`).
 After that, pushing to `main` deploys.
 
-### 7. Notes and caveats
+### 6. Notes and caveats
 
-- **Tracked dist vs git pull:** `npm run build` rewrites the tracked
-  `dist/` files on the server. If a later `git pull` refuses with
-  "local changes would be overwritten", run
-  `git checkout -- . && git pull` in the application directory (or
-  `git stash push -m "pre-pull"` first and drop it after a clean pull).
+- **Code folder resets:** each git deploy resets the code folder, so the
+  tracked `dist/` files rebuilt by the deploy script never cause git
+  conflicts. xCloud keeps an untracked `.env` in the site root across
+  deploys; the SQLite `data/` folder is not tracked by git and survives.
+  Keep a DB backup regardless (see below).
 - **WebSockets:** if xCloud's Nginx does not forward `Upgrade` headers,
   Socket.io falls back to HTTP long-polling — live features still work with
   slightly higher latency. If custom Nginx directives are available, add
   `proxy_set_header Upgrade $http_upgrade;` and
   `proxy_set_header Connection "upgrade";` to the location block.
-- **Verify from the server:** `curl http://127.0.0.1:$PORT/health` should
-  return `{"status":"ok"}`.
+- **Verify from the server:** `curl http://127.0.0.1:3000/health` should
+  return `{"status":"ok"}` (use the Application Port from SSR
+  Configuration).
+- **Logs:** site → Monitoring → Logs → **PM2 Log** holds the app's own
+  stdout/stderr (startup messages, crashes, stack traces).
 - **Backups:** schedule `scripts/backup.sh` via the xCloud cron feature:
   `0 3 * * * ELITEQUEST_ROOT=/path/to/site /path/to/site/scripts/backup.sh`.
 
@@ -158,13 +156,13 @@ automatically, enable the commented "Trigger xCloud deploy" step in
 
 | Symptom | Likely cause / fix |
 |---|---|
-| Deploy script fails at line 1: `cd: /your/site/path: No such file or directory` (exit code 1) | xCloud's default deploy script ships with an unreplaced placeholder — edit the deployment script in the dashboard and put the real site directory path in the `cd` line (shown on the site's dashboard page) |
-| Deployment fails during build | Check the xCloud build log: usually missing dev dependencies — the deployment script must run `npm install --include=dev` before `npm run build` |
-| App boots but site is unresponsive | Port mismatch — confirm the exposed/listener port matches `PORT` (app defaults to 3000 when xCloud does not inject it) |
-| 502 after deploy | Container/app crashed on boot — read logs (`pm2 logs` on native, `docker compose logs app` on Docker); `SESSION_SECRET` must be at least 16 chars |
+| Deploy script fails at line 1: `cd: /your/site/path: No such file or directory` (exit code 1) | The script contains an unreplaced `cd /your/site/path` placeholder from an old template. xCloud runs the script from the site's code folder after pulling — **delete the `cd` line** and keep only the install + build commands (see section 2) |
+| Deployment fails during build | Open the deployment log for the exact failing command; compare with a local `npm install --no-audit --no-fund && npm run build`. If the panel prunes dev dependencies, prefix the install with `npm install --include=dev` |
+| App boots but site is unresponsive / 502 | The app isn't listening on the port xCloud expects. Open SSR Configuration and confirm the **Application Port** matches the app (3000 by default; set `PORT` in Environment if you change it). Then check Monitoring → Logs → PM2 Log for a startup crash (`SESSION_SECRET` must be at least 16 chars) |
 | Login fails via HTTPS | `NODE_ENV=production` must be set so `trust proxy` and `secure` cookies work behind xCloud's nginx |
 | Blank page | Hard-refresh (Ctrl+Shift+R); if a panel-side nginx intercepts `*.css`/`*.js` URLs, set `PANEL_ASSET_REWRITE=true` in the environment |
 | Live features lag | WebSocket upgrade headers missing — Socket.io long-polling fallback is active; add the Nginx upgrade headers if xCloud exposes custom directives |
+| Dashboard half-set-up site can't be opened | Delete the incomplete site and re-create it via **Deploy via Git** following section 1 (serving mode SSR, port 3000, no `cd` in the deploy script); use the generated staging domain for the first deploy |
 
 ## Legacy: cPGuardX
 
