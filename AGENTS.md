@@ -148,7 +148,7 @@ Create each checklist from this template:
 - Primary target: the xCloud 3.0 panel (xcloud.host). See `docs/DEPLOYMENT-XCLOUD.md`
   and `skill_xcloud_deployment.md` for panel rules (start via `npm start`,
   `PORT` injected by the panel, Docker path uses pre-built GHCR images).
-- Manual fallback: basic Ubuntu VPS with PM2: `pm2 start ecosystem.config.js` (see `ecosystem.config.js`).
+- Manual fallback: basic Ubuntu VPS with PM2: `pm2 start ecosystem.config.cjs` (see `ecosystem.config.cjs`).
 - Sessions are stored in `data/sessions.db` via `connect-sqlite3` (they survive restarts).
 - Environment variables go in `.env` (see `.env.example`). See `techspecs.md` for details.
 - Static frontend built with `npm run build` and served from the Express app.

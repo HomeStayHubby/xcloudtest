@@ -303,7 +303,8 @@ npm run build
 
 ### PM2
 
-Use `ecosystem.config.js`:
+Use `ecosystem.config.cjs` (the `.cjs` extension is required because the root
+package.json sets `"type": "module"`):
 
 ```js
 module.exports = {

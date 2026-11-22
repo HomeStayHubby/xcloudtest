@@ -71,7 +71,7 @@ npm run create-admin -- you@example.com your_secure_password
 
 ```bash
 cd /srv/elitequest
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 pm2 save
 ```
 
@@ -275,5 +275,9 @@ defaults `PORT` to `3001` (the panel's local listener) and loads
   proxy_set_header Connection "upgrade";
   ```
 
-- `ecosystem.config.js` is not used by the panel (it manages PM2 itself); it
-  remains for manual deployments per section 5.
+- `ecosystem.config.cjs` is not used by the panel (it manages PM2 itself); it
+  remains for manual deployments per section 5. The `.cjs` extension is
+  required because the root package.json sets `"type": "module"` — a
+  `module.exports` config in a `.js` file would fail to load under Node 22+
+  (this is also why hosting panels that auto-detect PM2 configs need the
+  `.cjs` form; see `docs/DEPLOYMENT-XCLOUD.md`).
