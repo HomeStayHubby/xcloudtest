@@ -32,8 +32,8 @@ ENV NODE_ENV=production \
     PORT=3000
 WORKDIR /app
 
-COPY --from=build /app/package.json /app/package-lock.json ./
-COPY --from=build /app/index.js ./
+COPY package.json ./package.json
+COPY index.js ./index.js
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/shared/package.json ./shared/package.json
 COPY --from=build /app/shared/dist ./shared/dist
