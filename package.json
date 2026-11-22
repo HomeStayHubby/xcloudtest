@@ -1,6 +1,6 @@
 {
   "name": "elitequest",
-  "version": "0.30.2",
+  "version": "0.30.3",
   "description": "Gamified quizzing study aid for community college",
   "private": true,
   "type": "module",

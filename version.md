@@ -18,13 +18,16 @@ Version format: `MajorVer.MinorVer.PatchNum`
 
 ## Current Version
 
-**0.30.2**
+**0.30.3**
 
-Bugfix: Rebuild for xCloud 3.0 panel: npm-start entry shim on injected PORT, workspace build script, opt-in PANEL_ASSET_REWRITE for panel nginx quirks, Docker + GHCR workflow for Custom Docker deploys, xCloud deployment docs
+Bugfix: Harden DATABASE_URL handling: fail fast on managed-database connection strings (xCloud Postgres selection injects a postgres:// URL that sqlite3 cannot open) and log the resolved DB path on open errors
 
 ---
 
 ## Changelog
+
+### 0.30.3 — Harden DATABASE_URL handling: fail fast on managed-database connection strings (xCloud Postgres selection injects a postgres:// URL that sqlite3 cannot open) and log the resolved DB path on open errors
+- Bugfix: Harden DATABASE_URL handling: fail fast on managed-database connection strings (xCloud Postgres selection injects a postgres:// URL that sqlite3 cannot open) and log the resolved DB path on open errors.
 
 ### 0.30.2 — Rebuild for xCloud 3.0 panel: npm-start entry shim on injected PORT, workspace build script, opt-in PANEL_ASSET_REWRITE for panel nginx quirks, Docker + GHCR workflow for Custom Docker deploys, xCloud deployment docs
 - Bugfix: Rebuild for xCloud 3.0 panel: npm-start entry shim on injected PORT, workspace build script, opt-in PANEL_ASSET_REWRITE for panel nginx quirks, Docker + GHCR workflow for Custom Docker deploys, xCloud deployment docs.

@@ -1,3 +1,4 @@
+export declare function assertSqliteFilePath(value: string): void;
 export declare const env: {
     PROJECT_ROOT: string;
     DATA_DIR: string;

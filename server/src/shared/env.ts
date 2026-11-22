@@ -27,6 +27,32 @@ const envSchema = z.object({
   GROQ_MODEL: z.string().min(1).optional(),
 });
 
+// ELITEQuest stores data in SQLite (a file path), not a database server.
+// Hosting panels inject a DATABASE_URL connection string (e.g. a postgres://
+// URL) when a managed database is attached to the site, and sqlite3 would
+// only fail later with a cryptic SQLITE_CANTOPEN. Fail fast instead, naming
+// the variable and value so the fix is obvious.
+const NON_SQLITE_DB_SCHEMES = [
+  'postgres://',
+  'postgresql://',
+  'mysql://',
+  'mariadb://',
+  'mongodb://',
+  'mssql://',
+];
+
+export function assertSqliteFilePath(value: string): void {
+  const lowered = value.toLowerCase();
+  if (NON_SQLITE_DB_SCHEMES.some((scheme) => lowered.startsWith(scheme))) {
+    throw new Error(
+      `DATABASE_URL must be a SQLite file path, but it is set to a database connection URL ("${value}"). ` +
+        'Set the hosting panel\'s database option to "No Database", or set DATABASE_URL to a file path such as ./data/elitequest.db.'
+    );
+  }
+}
+
+assertSqliteFilePath(process.env.DATABASE_URL ?? './data/elitequest.db');
+
 const baseEnv = envSchema.parse(process.env);
 
 const DATA_DIR = path.join(projectRoot, 'data');

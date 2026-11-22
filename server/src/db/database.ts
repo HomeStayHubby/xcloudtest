@@ -3,7 +3,7 @@ import { env } from '../shared/env.js';
 
 const database = new sqlite3.Database(env.DATABASE_URL, (err) => {
   if (err) {
-    console.error('Failed to open database', err);
+    console.error(`Failed to open database at ${env.DATABASE_URL}`, err);
   } else {
     console.log('Database opened:', env.DATABASE_URL);
   }
