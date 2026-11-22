@@ -1,0 +1,44 @@
+{
+  "name": "elitequest",
+  "version": "0.30.2",
+  "description": "Gamified quizzing study aid for community college",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm run build --workspaces --if-present",
+    "start": "node index.js",
+    "test": "cd shared && npm test && cd ../server && npm test",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "version:feat": "node scripts/version-bump.mjs feat",
+    "version:fix": "node scripts/version-bump.mjs fix",
+    "version:major": "node scripts/version-bump.mjs major"
+  },
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "@typescript-eslint/eslint-plugin": "^8.71.0",
+    "@typescript-eslint/parser": "^8.71.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "allowScripts": {
+    "bcrypt@5.1.1": true,
+    "esbuild@0.21.5": true,
+    "esbuild@0.28.2": true,
+    "sqlite3@5.1.7": true
+  }
+}

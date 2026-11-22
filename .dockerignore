@@ -1,0 +1,13 @@
+node_modules
+data
+logs
+backups
+.git
+.github
+.vscode
+.idea
+coverage
+*.log
+*.md
+checklists
+docs

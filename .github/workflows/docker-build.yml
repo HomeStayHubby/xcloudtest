@@ -1,0 +1,58 @@
+name: Build and Push Docker Image
+
+# xCloud Custom Docker never builds images itself: it only runs
+# `docker-compose pull && docker-compose up -d`. This workflow builds the
+# image on every push to main and pushes it to GHCR so xCloud can pull it.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      # Optional: trigger an xCloud redeploy after the image is pushed.
+      # Enable once the site exists in xCloud; store the webhook URL from
+      # xCloud (site settings -> Git Deploy -> Webhook URL) as the repo
+      # secret XCLOUD_DEPLOY_WEBHOOK. Never print or commit the URL.
+      # - name: Trigger xCloud deploy
+      #   run: |
+      #     curl -X POST "${{ secrets.XCLOUD_DEPLOY_WEBHOOK }}" \
+      #       -H "Content-Type: application/json"

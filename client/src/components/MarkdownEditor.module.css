@@ -1,0 +1,61 @@
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.toolbar button {
+  min-height: 2rem;
+  padding: 0.25rem 0.625rem;
+  font-size: 0.8125rem;
+  box-shadow: 0 2px 0 #cbd5e1;
+}
+
+.toolbar button:hover {
+  transform: none;
+}
+
+.toolbar button:active {
+  transform: translateY(1px);
+}
+
+.textarea {
+  margin-bottom: 0;
+  resize: vertical;
+}
+
+.preview {
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.875rem 1rem;
+  min-height: 9rem;
+  background: #fff;
+}
+
+.cheatsheet {
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
+
+.cheatsheet summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.cheatsheet p {
+  margin: 0.375rem 0;
+}
+
+.cheatsheet pre {
+  margin: 0.375rem 0;
+  padding: 0.5rem 0.75rem;
+  background: #f1f5f9;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+}

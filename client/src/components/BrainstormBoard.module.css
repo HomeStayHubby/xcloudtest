@@ -1,0 +1,123 @@
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  min-height: 200px;
+}
+
+.note {
+  position: relative;
+  width: min(220px, 100%);
+  min-height: 140px;
+  padding: 1rem;
+  border-radius: 2px 14px 14px 14px;
+  box-shadow: 3px 5px 12px rgba(15, 23, 42, 0.18);
+  transform: rotate(var(--rotate, -2deg));
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: note-stick 0.4s ease-out;
+}
+
+.note:hover {
+  transform: rotate(0deg) translateY(-6px) scale(1.02);
+  box-shadow: 6px 10px 20px rgba(15, 23, 42, 0.22);
+  z-index: 2;
+}
+
+.tape {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  width: 48px;
+  height: 18px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.ideaText {
+  font-weight: 600;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  word-break: break-word;
+  margin-top: 0.25rem;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.author {
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.8;
+}
+
+.upvoteBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.upvoteButton {
+  background: #1f2937;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.4rem 0.85rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #0f172a, 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.upvoteButton:hover {
+  background: #0f172a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #0f172a, 0 6px 12px rgba(0, 0, 0, 0.25);
+}
+
+.upvoteButton:active {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #0f172a, 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.empty {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.toggleBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+@keyframes note-stick {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.8) rotate(var(--rotate, -2deg));
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(var(--rotate, -2deg));
+  }
+}

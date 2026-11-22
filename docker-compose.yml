@@ -1,0 +1,22 @@
+# xCloud Custom Docker deployment (git push -> docker-compose pull && up -d).
+# xCloud never builds images: GitHub Actions pushes the image to GHCR (see
+# .github/workflows/docker-build.yml) and xCloud pulls it on every deploy.
+#
+# xCloud rules honored here:
+# - no `build:` directives (ignored/unsupported by xCloud)
+# - no host port 80/443 bindings (xCloud's own nginx owns those)
+# - single exposed port (3000) that xCloud proxies to
+# - secrets via ${VAR} interpolation from the xCloud environment panel
+services:
+  app:
+    image: ghcr.io/homestayhubby/xcloudtest:latest
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SESSION_SECRET=${SESSION_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+    volumes:
+      - ./data:/app/data
